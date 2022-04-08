@@ -7,11 +7,15 @@ import is from './is';
 
 // Check support for a CSS declaration
 export function supportsCSS(declaration) {
-  if (!window || !window.CSS) {
-    return false;
+  if (typeof window != 'undefined') {
+    if (!window || !window.CSS) {
+      return false;
+    }
+
+    return window.CSS.supports(declaration);
   }
 
-  return window.CSS.supports(declaration);
+  return false;
 }
 
 // Standard/common aspect ratios

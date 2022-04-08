@@ -4,13 +4,16 @@
 // ==========================================================================
 
 const browser = {
-  isIE: (window && Boolean(window.document.documentMode)) || false,
-  isEdge: (window && window.navigator.userAgent.includes('Edge')) || false,
+  isIE: (typeof window != 'undefined' && Boolean(window.document.documentMode)) || false,
+  isEdge: (typeof window != 'undefined' && window.navigator.userAgent.includes('Edge')) || false,
   isWebkit:
-    (document && 'WebkitAppearance' in document.documentElement.style && !/Edge/.test(navigator.userAgent)) || false,
-  isIPhone: (navigator && /(iPhone|iPod)/gi.test(navigator.platform)) || false,
+    (typeof document != 'undefined' &&
+      'WebkitAppearance' in document.documentElement.style &&
+      !/Edge/.test(navigator.userAgent)) ||
+    false,
+  isIPhone: (typeof navigator != 'undefined' && /(iPhone|iPod)/gi.test(navigator.platform)) || false,
   isIos:
-    (navigator &&
+    (typeof navigator != 'undefined' &&
       ((navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
         /(iPad|iPhone|iPod)/gi.test(navigator.platform))) ||
     false,

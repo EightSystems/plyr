@@ -19,8 +19,8 @@ const defaultCodecs = {
 // Check for feature support
 const support = {
   // Basic support
-  audio: 'canPlayType' in document.createElement('audio'),
-  video: 'canPlayType' in document.createElement('video'),
+  audio: typeof document != 'undefined' && 'canPlayType' in document.createElement('audio'),
+  video: typeof document != 'undefined' && 'canPlayType' in document.createElement('video'),
 
   // Check for support
   // Basic functionality vs full UI
@@ -42,16 +42,18 @@ const support = {
       return false;
     }
 
-    // Safari
-    // https://developer.apple.com/documentation/webkitjs/adding_picture_in_picture_to_your_safari_media_controls
-    if (is.function(createElement('video').webkitSetPresentationMode)) {
-      return true;
-    }
+    if (typeof document != 'undefined') {
+      // Safari
+      // https://developer.apple.com/documentation/webkitjs/adding_picture_in_picture_to_your_safari_media_controls
+      if (is.function(createElement('video').webkitSetPresentationMode)) {
+        return true;
+      }
 
-    // Chrome
-    // https://developers.google.com/web/updates/2018/10/watch-video-using-picture-in-picture
-    if (document.pictureInPictureEnabled && !createElement('video').disablePictureInPicture) {
-      return true;
+      // Chrome
+      // https://developers.google.com/web/updates/2018/10/watch-video-using-picture-in-picture
+      if (document.pictureInPictureEnabled && !createElement('video').disablePictureInPicture) {
+        return true;
+      }
     }
 
     return false;
@@ -59,11 +61,11 @@ const support = {
 
   // Airplay support
   // Safari only currently
-  airplay: is.function(window.WebKitPlaybackTargetAvailabilityEvent),
+  airplay: typeof window != 'undefined' && is.function(window.WebKitPlaybackTargetAvailabilityEvent),
 
   // Inline playback support
   // https://webkit.org/blog/6784/new-video-policies-for-ios/
-  playsinline: 'playsInline' in document.createElement('video'),
+  playsinline: typeof document != 'undefined' && 'playsInline' in document.createElement('video'),
 
   // Check for mime type support against a player instance
   // Credits: http://diveintohtml5.info/everything.html
@@ -94,25 +96,28 @@ const support = {
   },
 
   // Check for textTracks support
-  textTracks: 'textTracks' in document.createElement('video'),
+  textTracks: typeof document != 'undefined' && 'textTracks' in document.createElement('video'),
 
   // <input type="range"> Sliders
   rangeInput: (() => {
-    const range = document.createElement('input');
-    range.type = 'range';
-    return range.type === 'range';
+    if (typeof document != 'undefined') {
+      const range = document.createElement('input');
+      range.type = 'range';
+      return range.type === 'range';
+    }
   })(),
 
   // Touch
   // NOTE: Remember a device can be mouse + touch enabled so we check on first touch event
-  touch: 'ontouchstart' in document.documentElement,
+  touch: typeof document != 'undefined' && 'ontouchstart' in document.documentElement,
 
   // Detect transitions support
   transitions: transitionEndEvent !== false,
 
   // Reduced motion iOS & MacOS setting
   // https://webkit.org/blog/7551/responsive-design-for-motion/
-  reducedMotion: 'matchMedia' in window && window.matchMedia('(prefers-reduced-motion)').matches,
+  reducedMotion:
+    typeof window != 'undefined' && 'matchMedia' in window && window.matchMedia('(prefers-reduced-motion)').matches,
 };
 
 export default support;
