@@ -5,18 +5,22 @@
 import is from './is';
 
 export const transitionEndEvent = (() => {
-  const element = document.createElement('span');
+  if (document) {
+    const element = document.createElement('span');
 
-  const events = {
-    WebkitTransition: 'webkitTransitionEnd',
-    MozTransition: 'transitionend',
-    OTransition: 'oTransitionEnd otransitionend',
-    transition: 'transitionend',
-  };
+    const events = {
+      WebkitTransition: 'webkitTransitionEnd',
+      MozTransition: 'transitionend',
+      OTransition: 'oTransitionEnd otransitionend',
+      transition: 'transitionend',
+    };
 
-  const type = Object.keys(events).find((event) => element.style[event] !== undefined);
+    const type = Object.keys(events).find((event) => element.style[event] !== undefined);
 
-  return is.string(type) ? events[type] : false;
+    return is.string(type) ? events[type] : false;
+  } else {
+    return false;
+  }
 })();
 
 // Force repaint of element

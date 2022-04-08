@@ -63,12 +63,16 @@ class Fullscreen {
 
   // Determine if native supported
   static get native() {
-    return !!(
-      document.fullscreenEnabled ||
-      document.webkitFullscreenEnabled ||
-      document.mozFullScreenEnabled ||
-      document.msFullscreenEnabled
-    );
+    if (document) {
+      return !!(
+        document.fullscreenEnabled ||
+        document.webkitFullscreenEnabled ||
+        document.mozFullScreenEnabled ||
+        document.msFullscreenEnabled
+      );
+    } else {
+      return false;
+    }
   }
 
   // If we're actually using native
