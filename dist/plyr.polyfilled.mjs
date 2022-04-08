@@ -861,7 +861,7 @@ var is = {
 
 // ==========================================================================
 const transitionEndEvent = (() => {
-  if (document) {
+  if (typeof document != 'undefined') {
     const element = document.createElement('span');
     const events = {
       WebkitTransition: 'webkitTransitionEnd',
@@ -895,11 +895,11 @@ function repaint(element, delay) {
 // Unfortunately, due to mixed support, UA sniffing is required
 // ==========================================================================
 const browser = {
-  isIE: window && Boolean(window.document.documentMode) || false,
-  isEdge: window && window.navigator.userAgent.includes('Edge') || false,
-  isWebkit: document && 'WebkitAppearance' in document.documentElement.style && !/Edge/.test(navigator.userAgent) || false,
-  isIPhone: navigator && /(iPhone|iPod)/gi.test(navigator.platform) || false,
-  isIos: navigator && (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 || /(iPad|iPhone|iPod)/gi.test(navigator.platform)) || false
+  isIE: typeof window != 'undefined' && Boolean(window.document.documentMode) || false,
+  isEdge: typeof window != 'undefined' && window.navigator.userAgent.includes('Edge') || false,
+  isWebkit: typeof document != 'undefined' && 'WebkitAppearance' in document.documentElement.style && !/Edge/.test(navigator.userAgent) || false,
+  isIPhone: typeof navigator != 'undefined' && /(iPhone|iPod)/gi.test(navigator.platform) || false,
+  isIos: typeof navigator != 'undefined' && (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 || /(iPad|iPhone|iPod)/gi.test(navigator.platform)) || false
 };
 
 // ==========================================================================
@@ -1201,8 +1201,8 @@ const defaultCodecs = {
 
 const support = {
   // Basic support
-  audio: 'canPlayType' in document.createElement('audio'),
-  video: 'canPlayType' in document.createElement('video'),
+  audio: typeof document != 'undefined' && 'canPlayType' in document.createElement('audio'),
+  video: typeof document != 'undefined' && 'canPlayType' in document.createElement('video'),
 
   // Check for support
   // Basic functionality vs full UI
@@ -1221,28 +1221,30 @@ const support = {
   pip: (() => {
     if (browser.isIPhone) {
       return false;
-    } // Safari
-    // https://developer.apple.com/documentation/webkitjs/adding_picture_in_picture_to_your_safari_media_controls
+    }
+
+    if (typeof document != 'undefined') {
+      // Safari
+      // https://developer.apple.com/documentation/webkitjs/adding_picture_in_picture_to_your_safari_media_controls
+      if (is.function(createElement('video').webkitSetPresentationMode)) {
+        return true;
+      } // Chrome
+      // https://developers.google.com/web/updates/2018/10/watch-video-using-picture-in-picture
 
 
-    if (is.function(createElement('video').webkitSetPresentationMode)) {
-      return true;
-    } // Chrome
-    // https://developers.google.com/web/updates/2018/10/watch-video-using-picture-in-picture
-
-
-    if (document.pictureInPictureEnabled && !createElement('video').disablePictureInPicture) {
-      return true;
+      if (document.pictureInPictureEnabled && !createElement('video').disablePictureInPicture) {
+        return true;
+      }
     }
 
     return false;
   })(),
   // Airplay support
   // Safari only currently
-  airplay: is.function(window.WebKitPlaybackTargetAvailabilityEvent),
+  airplay: typeof window != 'undefined' && is.function(window.WebKitPlaybackTargetAvailabilityEvent),
   // Inline playback support
   // https://webkit.org/blog/6784/new-video-policies-for-ios/
-  playsinline: 'playsInline' in document.createElement('video'),
+  playsinline: typeof document != 'undefined' && 'playsInline' in document.createElement('video'),
 
   // Check for mime type support against a player instance
   // Credits: http://diveintohtml5.info/everything.html
@@ -1272,21 +1274,23 @@ const support = {
   },
 
   // Check for textTracks support
-  textTracks: 'textTracks' in document.createElement('video'),
+  textTracks: typeof document != 'undefined' && 'textTracks' in document.createElement('video'),
   // <input type="range"> Sliders
   rangeInput: (() => {
-    const range = document.createElement('input');
-    range.type = 'range';
-    return range.type === 'range';
+    if (typeof document != 'undefined') {
+      const range = document.createElement('input');
+      range.type = 'range';
+      return range.type === 'range';
+    }
   })(),
   // Touch
   // NOTE: Remember a device can be mouse + touch enabled so we check on first touch event
-  touch: 'ontouchstart' in document.documentElement,
+  touch: typeof document != 'undefined' && 'ontouchstart' in document.documentElement,
   // Detect transitions support
   transitions: transitionEndEvent !== false,
   // Reduced motion iOS & MacOS setting
   // https://webkit.org/blog/7551/responsive-design-for-motion/
-  reducedMotion: 'matchMedia' in window && window.matchMedia('(prefers-reduced-motion)').matches
+  reducedMotion: typeof window != 'undefined' && 'matchMedia' in window && window.matchMedia('(prefers-reduced-motion)').matches
 };
 
 // ==========================================================================
@@ -1438,11 +1442,15 @@ function closest(array, value) {
 // ==========================================================================
 
 function supportsCSS(declaration) {
-  if (!window || !window.CSS) {
-    return false;
+  if (typeof window != 'undefined') {
+    if (!window || !window.CSS) {
+      return false;
+    }
+
+    return window.CSS.supports(declaration);
   }
 
-  return window.CSS.supports(declaration);
+  return false;
 } // Standard/common aspect ratios
 
 const standardRatios = [[1, 1], [4, 3], [3, 4], [5, 4], [4, 5], [3, 2], [2, 3], [16, 10], [10, 16], [16, 9], [9, 16], [21, 9], [9, 21], [32, 9], [9, 32]].reduce((out, [x, y]) => ({ ...out,
@@ -4360,7 +4368,7 @@ const noop = () => {};
 
 class Console {
   constructor(enabled = false) {
-    this.enabled = window.console && enabled;
+    this.enabled = typeof window != 'undefined' && window.console && enabled;
 
     if (this.enabled) {
       this.log('Debugging enabled');
